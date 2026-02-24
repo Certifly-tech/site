@@ -2,51 +2,333 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<!-- Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+		<!-- Schema Markup -->
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "Organization",
+			"name": "Certifly",
+			"url": "https://certifly.tech",
+			"description": "AI-powered professional certification platform for B2B SaaS products",
+			"foundingDate": "2026"
+		}
+		</script>
+		<style>
+			:root {
+				--magenta: #f100ff;
+				--deep-blue: #0000b8;
+				--bg-dark: #0a0a1a;
+				--bg-card: #111125;
+				--bg-card-hover: #161635;
+				--text-primary: #f0f0f5;
+				--text-secondary: #9595b0;
+				--text-muted: #6b6b85;
+				--border-glow: rgba(241, 0, 255, 0.12);
+				--border-subtle: rgba(255, 255, 255, 0.06);
+				--gradient: linear-gradient(135deg, #f100ff, #0000b8);
+				--gradient-text: linear-gradient(135deg, #f100ff, #7B68EE, #0000b8);
+				--glow-magenta: rgba(241, 0, 255, 0.15);
+				--glow-blue: rgba(0, 0, 184, 0.15);
+				--max-w: 1140px;
+				--section-pad: clamp(80px, 10vw, 140px);
+			}
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			html {
+				scroll-behavior: smooth;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+			body {
+				font-family: 'DM Sans', system-ui, sans-serif;
+				background: var(--bg-dark);
+				color: var(--text-primary);
+				line-height: 1.65;
+				font-size: 17px;
+				overflow-x: hidden;
+			}
+			.container {
+				max-width: var(--max-w);
+				margin: 0 auto;
+				padding: 0 24px;
+			}
+			.gradient-text {
+				background: var(--gradient-text);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+			}
+			.section-pad {
+				padding: var(--section-pad) 0;
+			}
+			.muted {
+				color: var(--text-secondary);
+			}
+			.text-muted {
+				color: var(--text-muted);
+			}
+			h1, h2, h3, h4 {
+				font-family: 'Outfit', sans-serif;
+				line-height: 1.15;
+				letter-spacing: -0.02em;
+			}
+			h1 {
+				font-size: clamp(36px, 5.5vw, 62px);
+				font-weight: 800;
+			}
+			h2 {
+				font-size: clamp(28px, 3.5vw, 42px);
+				font-weight: 700;
+				margin-bottom: 24px;
+			}
+			h3 {
+				font-size: clamp(18px, 2vw, 22px);
+				font-weight: 600;
+			}
+			p {
+				margin-bottom: 16px;
+			}
+			/* CTA Form */
+			.cta-form {
+				display: flex;
+				gap: 10px;
+				max-width: 460px;
+				flex-wrap: wrap;
+			}
+			.cta-form input[type="email"] {
+				flex: 1;
+				min-width: 220px;
+				padding: 14px 18px;
+				border-radius: 10px;
+				border: 1px solid rgba(255,255,255,0.1);
+				background: rgba(255,255,255,0.05);
+				color: var(--text-primary);
+				font-size: 16px;
+				font-family: 'DM Sans', sans-serif;
+				outline: none;
+				transition: border-color 0.3s;
+			}
+			.cta-form input[type="email"]::placeholder {
+				color: var(--text-muted);
+			}
+			.cta-form input[type="email"]:focus {
+				border-color: var(--magenta);
+			}
+			.cta-form button {
+				padding: 14px 28px;
+				border-radius: 10px;
+				border: none;
+				background: var(--gradient);
+				color: white;
+				font-size: 16px;
+				font-weight: 600;
+				cursor: pointer;
+				font-family: 'DM Sans', sans-serif;
+				white-space: nowrap;
+				transition: transform 0.2s, box-shadow 0.3s;
+			}
+			.cta-form button:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 4px 30px var(--glow-magenta);
+			}
+			.cta-sub {
+				font-size: 13px;
+				color: var(--text-muted);
+				margin-top: 10px;
+			}
+			/* Hero */
+			.hero {
+				padding-top: 160px;
+				padding-bottom: var(--section-pad);
+				position: relative;
+				overflow: hidden;
+			}
+			.hero::before {
+				content: '';
+				position: absolute;
+				top: -200px;
+				right: -200px;
+				width: 700px;
+				height: 700px;
+				border-radius: 50%;
+				background: radial-gradient(circle, var(--glow-magenta) 0%, transparent 70%);
+				pointer-events: none;
+			}
+			.hero::after {
+				content: '';
+				position: absolute;
+				bottom: -100px;
+				left: -150px;
+				width: 500px;
+				height: 500px;
+				border-radius: 50%;
+				background: radial-gradient(circle, var(--glow-blue) 0%, transparent 70%);
+				pointer-events: none;
+			}
+			.hero .container {
+				position: relative;
+				z-index: 1;
+			}
+			.hero-pretitle {
+				font-size: 14px;
+				font-weight: 500;
+				color: var(--magenta);
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				margin-bottom: 20px;
+			}
+			.hero-sub {
+				font-size: clamp(17px, 2vw, 20px);
+				color: var(--text-secondary);
+				max-width: 620px;
+				margin-bottom: 36px;
+				line-height: 1.6;
+			}
+			.section-divider {
+				width: 100%;
+				height: 1px;
+				background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+			}
+			/* Footer */
+			footer {
+				padding: 48px 0;
+				border-top: 1px solid var(--border-subtle);
+				text-align: center;
+				color: var(--text-muted);
+				font-size: 13px;
+			}
+			footer .logo {
+				display: inline-flex;
+				margin-bottom: 16px;
+				justify-content: center;
+			}
+			footer p {
+				margin-bottom: 6px;
+			}
+			footer a {
+				color: var(--text-secondary);
+				text-decoration: none;
+			}
+			footer a:hover {
+				color: var(--magenta);
+			}
+			@media (max-width: 768px) {
+				.cta-form {
+					flex-direction: column;
+				}
+				.cta-form input[type="email"] {
+					min-width: 100%;
+				}
+				.cta-form button {
+					width: 100%;
+				}
+			}
+		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
-			<h1>🚀 Welcome to Certifly Blog</h1>
-			<p>
-				Your source for data-driven insights on <strong>SaaS certification, customer retention strategies, and user engagement optimization</strong>.
-			</p>
-			
-			<section>
-				<h2>Latest Posts</h2>
-				<ul>
-					<li><a href="/blog/bem-vindo-a-certifly">Bem-vindo ao Certifly</a> - Onde a experiência técnica encontra a criação de conteúdo estratégico</li>
-					<li><a href="/blog/first-post">First Post</a> - Example post</li>
-					<li><a href="/blog/second-post">Second Post</a> - Example post</li>
-				</ul>
+			<!-- ═══════ HERO ═══════ -->
+			<section class="hero">
+				<div class="container">
+					<div class="hero-pretitle fade-up">For B2B SaaS with complex products</div>
+					<h1 class="fade-up">
+						SaaS Certification That Stops Churn at the Root.<br>
+						<span class="gradient-text">Your Users Don't Leave Bad Products. They Leave Products They Never Truly Learned.</span>
+					</h1>
+					<p class="hero-sub fade-up">
+						Certifly turns real product usage into professional certifications your users actually want to complete. AI-powered. Embedded in your SaaS. Live in minutes, not months.
+					</p>
+					<form class="cta-form fade-up" id="waitlist" onsubmit="handleWaitlist(event)">
+						<input type="email" placeholder="your@workemail.com" required aria-label="Email address">
+						<button type="submit">Join the Waitlist →</button>
+					</form>
+					<p class="cta-sub fade-up">Free early access. No credit card. Launching Q2 2026.</p>
+				</div>
 			</section>
 
-			<section>
-				<h2>What You'll Find Here</h2>
-				<ul>
-					<li><strong>SaaS Certification Strategies:</strong> How to build certification programs that actually reduce churn</li>
-					<li><strong>Customer Retention Insights:</strong> Data-backed approaches to keep users engaged</li>
-					<li><strong>Technical Onboarding:</strong> Best practices for empowering users from day one</li>
-					<li><strong>Growth Frameworks:</strong> Scalable approaches to SaaS product adoption</li>
-				</ul>
-			</section>
+			<div class="section-divider"></div>
 
-			<section>
-				<h2>About Certifly</h2>
-				<p>
-					Certifly is reimagining how SaaS companies engage users through professional certification programs that deliver real career value.
-				</p>
-				<p>
-					Our mission: Transform superficial gamification into meaningful credentialing that drives 3X higher retention.
-				</p>
+			<!-- ═══════ FINAL CTA ═══════ -->
+			<section class="final-cta section-pad">
+				<div class="container">
+					<h2 class="fade-up">Stop Losing Users to Features <span class="gradient-text">They Never Discovered.</span></h2>
+					<p class="fade-up">
+						The first SaaS companies to offer professional certification will own their categories. Your users are already looking for credentials that advance their careers. The question is: will they get certified through <strong>your</strong> product — or someone else's?
+					</p>
+					<form class="cta-form fade-up" onsubmit="handleWaitlist(event)">
+						<input type="email" placeholder="your@workemail.com" required aria-label="Email address">
+						<button type="submit">Get Early Access →</button>
+					</form>
+					<p class="final-micro fade-up">
+						Founding members get free access + priority onboarding. No credit card. No commitment.
+					</p>
+				</div>
 			</section>
 		</main>
 		<Footer />
+
+		<script>
+			// Waitlist Form
+			function handleWaitlist(e) {
+				e.preventDefault();
+				const input = e.target.querySelector('input[type="email"]');
+				const email = input.value;
+				const btn = e.target.querySelector('button');
+				
+				btn.textContent = '✓ You\u2019re on the list!';
+				btn.style.background = '#037f4c';
+				btn.disabled = true;
+				input.disabled = true;
+				input.value = '';
+				
+				console.log('Waitlist signup:', email);
+				// TODO: POST to your waitlist API
+				// fetch('/api/waitlist', { method: 'POST', body: JSON.stringify({ email }) });
+				
+				setTimeout(() => {
+					btn.textContent = 'Join the Waitlist →';
+					btn.style.background = '';
+					btn.disabled = false;
+					input.disabled = false;
+				}, 4000);
+			}
+			
+			// Scroll Reveal
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('visible');
+					}
+				});
+			}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+			
+			document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+			
+			// Navbar scroll effect
+			window.addEventListener('scroll', () => {
+				const nav = document.querySelector('header');
+				if (window.scrollY > 50) {
+					nav.style.borderBottomColor = 'rgba(241, 0, 255, 0.08)';
+				} else {
+					nav.style.borderBottomColor = 'rgba(255,255,255,0.06)';
+				}
+			});
+		</script>
+		<noscript><style>.fade-up { opacity: 1 !important; transform: none !important; }</style></noscript>
 	</body>
 </html>
