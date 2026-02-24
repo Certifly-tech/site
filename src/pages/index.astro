@@ -1,13 +1,93 @@
 ---
-// Redirect to static HTML landing page
+// Landing page simplificada - Certifly
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 ---
 
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0; url=/index.html">
-</head>
-<body>
-  <p>Redirecting to Certifly landing page...</p>
-</body>
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			:root {
+				--magenta: #f100ff;
+				--deep-blue: #0000b8;
+				--bg-dark: #0a0a1a;
+				--text-primary: #f0f0f5;
+			}
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: system-ui, sans-serif;
+				background: var(--bg-dark);
+				color: var(--text-primary);
+			}
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 0 20px;
+			}
+			.hero {
+				padding: 120px 0;
+				text-align: center;
+				background: linear-gradient(135deg, #0a0a1a, #1a1a2e);
+			}
+			.hero h1 {
+				font-size: 3.5rem;
+				margin-bottom: 1rem;
+				background: linear-gradient(135deg, #f100ff, #0000b8);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+			}
+			.hero p {
+				font-size: 1.2rem;
+				max-width: 700px;
+				margin: 0 auto 2rem;
+				color: #9595b0;
+			}
+			.cta-button {
+				display: inline-block;
+				padding: 1rem 2rem;
+				background: linear-gradient(135deg, #f100ff, #0000b8);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-size: 1.1rem;
+				font-weight: 600;
+				text-decoration: none;
+				cursor: pointer;
+			}
+			.section {
+				padding: 80px 0;
+			}
+			.section h2 {
+				font-size: 2.5rem;
+				margin-bottom: 2rem;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<div class="container">
+					<h1>SaaS Certification That Stops Churn at the Root</h1>
+					<p>Your Users Don't Leave Bad Products. They Leave Products They Never Truly Learned.</p>
+					<a href="#waitlist" class="cta-button">Join the Waitlist →</a>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="container">
+					<h2>The $1.6 Trillion SaaS Churn Problem Nobody's Actually Solving</h2>
+					<p>Certifly turns real product usage into professional certifications your users actually want to complete. AI-powered. Embedded in your SaaS. Live in minutes, not months.</p>
+					<a href="#waitlist" class="cta-button">Get Early Access</a>
+				</div>
+			</section>
+		</main>
+		<Footer />
+	</body>
 </html>
