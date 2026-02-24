@@ -1,0 +1,116 @@
+---
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: string;
+  canonicalUrl?: string;
+  schema?: string;
+}
+
+const {
+  title,
+  description,
+  ogImage = 'https://certifly.io/og-image.png',
+  ogType = 'website',
+  canonicalUrl,
+  schema,
+} = Astro.props;
+
+const canonical = canonicalUrl || Astro.url.href;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href={canonical}>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content={ogType}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={ogImage}>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Organization Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Certifly",
+    "url": "https://certifly.io",
+    "description": "AI-powered professional certification platform for B2B SaaS products",
+    "foundingDate": "2026"
+  })} />
+
+  <!-- Page-specific schema -->
+  {schema && <script type="application/ld+json" set:html={schema} />}
+
+  <slot name="head" />
+</head>
+<body>
+  <noscript><style>{'  .fade-up { opacity: 1 !important; transform: none !important; }'}</style></noscript>
+
+  <Navbar />
+
+  <slot />
+
+  <Footer />
+
+  <!-- Scroll reveal -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+
+  <!-- Waitlist form handler -->
+  <script>
+    document.querySelectorAll('[data-waitlist]').forEach(form => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = (e.target as HTMLFormElement).querySelector('input[type="email"]') as HTMLInputElement;
+        const btn = (e.target as HTMLFormElement).querySelector('button') as HTMLButtonElement;
+        const email = input.value;
+
+        btn.textContent = '\u2713 You\u2019re on the list!';
+        btn.style.background = '#037f4c';
+        btn.disabled = true;
+        input.disabled = true;
+        input.value = '';
+
+        console.log('Waitlist signup:', email);
+        // TODO: POST to your waitlist API
+        // fetch('/api/waitlist', { method: 'POST', body: JSON.stringify({ email }) });
+
+        setTimeout(() => {
+          btn.textContent = 'Join the Waitlist \u2192';
+          btn.style.background = '';
+          btn.disabled = false;
+          input.disabled = false;
+        }, 4000);
+      });
+    });
+  </script>
+</body>
+</html>

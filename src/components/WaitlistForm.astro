@@ -1,0 +1,44 @@
+---
+interface Props {
+  buttonText?: string;
+  subText?: string;
+}
+const { buttonText = 'Join the Waitlist →', subText = '' } = Astro.props;
+---
+<form class="cta-form" data-waitlist>
+  <input type="email" placeholder="your@workemail.com" required aria-label="Email address">
+  <button type="submit">{buttonText}</button>
+</form>
+{subText && <p class="cta-sub">{subText}</p>}
+
+<style>
+  .cta-form {
+    display: flex; gap: 10px; max-width: 460px; flex-wrap: wrap;
+  }
+  .cta-form input[type="email"] {
+    flex: 1; min-width: 220px; padding: 14px 18px;
+    border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05); color: var(--text-primary);
+    font-size: 16px; font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.3s;
+  }
+  .cta-form input[type="email"]::placeholder { color: var(--text-muted); }
+  .cta-form input[type="email"]:focus { border-color: var(--magenta); }
+  .cta-form button {
+    padding: 14px 28px; border-radius: 10px; border: none;
+    background: var(--gradient); color: white; font-size: 16px;
+    font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap; transition: transform 0.2s, box-shadow 0.3s;
+  }
+  .cta-form button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 30px var(--glow-magenta);
+  }
+  .cta-sub { font-size: 13px; color: var(--text-muted); margin-top: 10px; }
+
+  @media (max-width: 768px) {
+    .cta-form { flex-direction: column; }
+    .cta-form input[type="email"] { min-width: 100%; }
+    .cta-form button { width: 100%; }
+  }
+</style>

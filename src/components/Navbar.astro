@@ -1,0 +1,50 @@
+---
+import Logo from './Logo.astro';
+
+interface Props {
+  showBlog?: boolean;
+}
+const { showBlog = true } = Astro.props;
+---
+<nav class="navbar">
+  <div class="container">
+    <a href="/" class="logo">
+      <Logo size={30} />
+      Certifly
+    </a>
+    <div class="nav-links">
+      {showBlog && <a href="/blog" class="nav-link">Blog</a>}
+      <a href="/#waitlist" class="nav-cta">Join Waitlist</a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 16px 0;
+    background: rgba(10, 10, 26, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all 0.3s;
+  }
+  .navbar .container { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 22px;
+    text-decoration: none; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo:hover { color: var(--text-primary); }
+  .nav-links { display: flex; align-items: center; gap: 24px; }
+  .nav-link {
+    font-size: 14px; font-weight: 500; color: var(--text-secondary);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--text-primary); }
+  .nav-cta {
+    padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    background: var(--gradient); color: white; border: none; cursor: pointer;
+    text-decoration: none; transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.9; color: white; }
+</style>
