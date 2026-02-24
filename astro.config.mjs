@@ -9,4 +9,5 @@ export default defineConfig({
 	site: 'https://certifly.tech',
 	base: '/',
 	integrations: [mdx(), sitemap()],
+	output: 'static',
 });
