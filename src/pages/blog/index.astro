@@ -26,7 +26,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         <div class="posts-grid">
           {posts.map(post => (
             <a href={`/blog/${post.id.replace(/\.md$/, '')}/`} class="post-card fade-up">
-              {post.data.image && <img src={post.data.image} alt={post.data.title} class="post-image" />}
+              {post.data.image && <img src={post.data.image} alt={post.data.title} class="post-image" loading="lazy" width="600" height="400" />}
               <div class="post-card-body">
                 <div class="post-card-meta">
                   <time datetime={post.data.pubDate.toISOString()}>
