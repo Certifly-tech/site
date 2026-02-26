@@ -98,34 +98,35 @@ const canonical = canonicalUrl || Astro.url.href;
   <!-- Page-specific schema -->
   {schema && <script type="application/ld+json" set:html={schema} />}
 
-  <!-- Google Analytics - Defer loading -->
+  <!-- Google Analytics - Load after 5 seconds or on user interaction -->
   <script>
-    // Load GA after page becomes interactive
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(function() {
-        var script = document.createElement('script');
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
-        script.async = true;
-        document.head.appendChild(script);
-        
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-MQ633HZM4L');
-      });
-    } else {
-      setTimeout(function() {
-        var script = document.createElement('script');
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
-        script.async = true;
-        document.head.appendChild(script);
-        
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-MQ633HZM4L');
-      }, 3000); // Load after 3 seconds if no requestIdleCallback
+    // Defer GA until 5 seconds after load OR on first interaction
+    function loadGoogleAnalytics() {
+      var script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+      
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-MQ633HZM4L', { 'transport_type': 'beacon' });
     }
+    
+    // Load GA after 5 seconds OR on first user interaction
+    setTimeout(loadGoogleAnalytics, 5000);
+    
+    // Alternatively load on first user interaction
+    ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(function(event) {
+      window.addEventListener(event, function loadGAOnInteraction() {
+        loadGoogleAnalytics();
+        // Remove listeners after first interaction
+        ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(function(e) {
+          window.removeEventListener(e, loadGAOnInteraction);
+        });
+      }, { once: true, passive: true });
+    });
   </script>
 
   <!-- Defer loading of main CSS -->
