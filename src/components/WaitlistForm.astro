@@ -3,33 +3,26 @@ interface Props {
   buttonText?: string;
   subText?: string;
   placeholder?: string;
-  // ConvertKit settings (optional)
-  convertKitFormId?: string;
-  convertKitApiKey?: string;
 }
 
 const { 
   buttonText = 'Join the Waitlist →', 
   subText = 'Free early access. No credit card. Launching Q2 2026.',
-  placeholder = 'your@workemail.com',
-  convertKitFormId = Astro.env.PUBLIC_CONVERTKIT_FORM_ID,
-  convertKitApiKey = Astro.env.PUBLIC_CONVERTKIT_API_KEY
+  placeholder = 'your@workemail.com'
 } = Astro.props;
 
-const useConvertKit = !!convertKitFormId && !!convertKitApiKey;
+const convertKitFormId = "9138922";
 ---
 
 <form 
   class="cta-form" 
-  {useConvertKit ? 'data-convertkit-form' : 'data-waitlist'}
-  {@(useConvertKit && {
-    action: `https://app.convertkit.com/forms/${convertKitFormId}/subscriptions`,
-    method: 'post'
-  })}
+  data-convertkit-form
+  action={`https://app.convertkit.com/forms/${convertKitFormId}/subscriptions`}
+  method="post"
 >
   <input 
     type="email" 
-    name={useConvertKit ? 'email_address' : 'email'}
+    name="email_address"
     placeholder={placeholder} 
     required 
     aria-label="Email address"
@@ -40,31 +33,26 @@ const useConvertKit = !!convertKitFormId && !!convertKitApiKey;
   </button>
   
   <!-- ConvertKit hidden fields -->
-  {useConvertKit && (
-    <>
-      <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
-      <input type="hidden" name="referrer" value="https://certifly.tech">
-      <input type="hidden" name="landing_url" value={Astro.url.href}>
-      <!-- Privacy-friendly honeypot -->
-      <div style="position: absolute; left: -5000px;" aria-hidden="true">
-        <input type="text" name="first_name" tabindex="-1" autoComplete="off" />
-      </div>
-    </>
-  )}
+  <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
+  <input type="hidden" name="referrer" value="https://certifly.tech">
+  <input type="hidden" name="landing_url" value={Astro.url.href}>
+  <!-- Privacy-friendly honeypot -->
+  <div style="position: absolute; left: -5000px;" aria-hidden="true">
+    <input type="text" name="first_name" tabindex="-1" autoComplete="off" />
+  </div>
 </form>
 
 {subText && <p class="cta-sub">{subText}</p>}
 
 <script>
-  // Enhanced form handling for both ConvertKit and fallback
+  // Enhanced ConvertKit form handling with fallback
   document.addEventListener('DOMContentLoaded', function() {
-    const forms = document.querySelectorAll('[data-convertkit-form], [data-waitlist]');
+    const forms = document.querySelectorAll('[data-convertkit-form]');
     
     forms.forEach(form => {
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const isConvertKit = this.hasAttribute('data-convertkit-form');
         const submitBtn = this.querySelector('button[type="submit"]');
         const emailInput = this.querySelector('input[type="email"]');
         const originalBtnText = submitBtn.textContent;
@@ -78,58 +66,58 @@ const useConvertKit = !!convertKitFormId && !!convertKitApiKey;
         
         // Disable UI
         submitBtn.disabled = true;
-        submitBtn.textContent = isConvertKit ? 'Submitting...' : '✓ You\'re on the list!';
-        if (!isConvertKit) {
-          submitBtn.style.background = '#037f4c';
-        }
+        submitBtn.textContent = 'Submitting...';
         emailInput.disabled = true;
         
-        if (isConvertKit) {
-          // ConvertKit submission
-          try {
-            // Option 1: Direct form submission (simpler)
-            this.submit();
+        try {
+          // Submit directly to ConvertKit first
+          const formData = new FormData(this);
+          
+          // Try ConvertKit API first
+          const response = await fetch(this.action, {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+            headers: { 'Accept': 'application/json' }
+          });
+          
+          if (response.ok) {
+            // Success - show confirmation
+            submitBtn.textContent = '✓ You\'re on the list!';
+            submitBtn.style.background = '#037f4c';
+            emailInput.value = '';
             
-            // Option 2: Fetch API (more control)
-            /*
-            const formData = new FormData(this);
-            const response = await fetch(this.action, {
-              method: 'POST',
-              body: new URLSearchParams(formData),
-              headers: { 'Accept': 'application/json' }
-            });
-            
-            if (response.ok) {
-              showSuccess();
-            } else {
-              throw new Error('Submission failed');
-            }
-            */
-          } catch (error) {
-            console.error('ConvertKit error:', error);
-            // Fallback to local storage
+            // Also save to localStorage as backup
             saveToLocalStorage(email);
-            showSuccess();
+            
+            // Track conversion if GA is available
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'waitlist_signup', {
+                'event_category': 'conversion',
+                'event_label': 'waitlist'
+              });
+            }
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+              submitBtn.textContent = originalBtnText;
+              submitBtn.style.background = '';
+              submitBtn.disabled = false;
+              emailInput.disabled = false;
+            }, 3000);
+          } else {
+            // ConvertKit failed, fallback to localStorage
+            throw new Error('ConvertKit submission failed');
           }
-        } else {
-          // Fallback: Save to localStorage or console
-          console.log('Waitlist signup (fallback):', email);
+        } catch (error) {
+          console.log('ConvertKit submission failed, using localStorage fallback:', error);
+          
+          // Fallback: Save to localStorage
           saveToLocalStorage(email);
-          showSuccess();
-        }
-        
-        function showSuccess() {
-          submitBtn.textContent = '✓ You\'re on the list!';
+          
+          // Show success anyway
+          submitBtn.textContent = '✓ You\'re on the list! (Saved locally)';
           submitBtn.style.background = '#037f4c';
           emailInput.value = '';
-          
-          // Track conversion if GA is available
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'waitlist_signup', {
-              'event_category': 'conversion',
-              'event_label': 'waitlist'
-            });
-          }
           
           // Reset after 3 seconds
           setTimeout(() => {
@@ -146,7 +134,8 @@ const useConvertKit = !!convertKitFormId && !!convertKitApiKey;
             waitlist.push({
               email: email,
               timestamp: new Date().toISOString(),
-              source: window.location.href
+              source: window.location.href,
+              submitted_to_convertkit: true
             });
             localStorage.setItem('certifly_waitlist', JSON.stringify(waitlist));
             console.log('Saved to localStorage:', waitlist.length, 'total signups');
