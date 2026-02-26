@@ -35,6 +35,9 @@ const convertKitFormId = "9138922";
   <!-- ConvertKit hidden fields - MINIMAL working payload -->
   <!-- DO NOT include fields={} - causes Internal Server Error -->
   <input type="hidden" name="form_id" value="9138922">
+  <input type="hidden" name="referrer" value="https://certifly.tech">
+  <input type="hidden" name="landing_url" value={Astro.url.href}>
+  <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
   
   <!-- Privacy-friendly honeypot -->
   <div style="position: absolute; left: -5000px;" aria-hidden="true">
