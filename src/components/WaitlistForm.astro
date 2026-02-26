@@ -32,11 +32,10 @@ const convertKitFormId = "9138922";
     {buttonText}
   </button>
   
-  <!-- ConvertKit hidden fields -->
-  <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
-  <input type="hidden" name="referrer" value="https://certifly.tech">
-  <input type="hidden" name="landing_url" value={Astro.url.href}>
-  <input type="hidden" name="fields" value="{}">
+  <!-- ConvertKit hidden fields - MINIMAL working payload -->
+  <!-- DO NOT include fields={} - causes Internal Server Error -->
+  <input type="hidden" name="form_id" value="9138922">
+  
   <!-- Privacy-friendly honeypot -->
   <div style="position: absolute; left: -5000px;" aria-hidden="true">
     <input type="text" name="first_name" tabindex="-1" autoComplete="off" />
@@ -88,12 +87,18 @@ const convertKitFormId = "9138922";
         emailInput.value = '';
         
         // Submit to ConvertKit in background
-        const formData = new FormData(this);
+        // Build payload manually to avoid fields={} issue
+        const params = new URLSearchParams();
+        params.append('email_address', email);
+        params.append('form_id', '9138922');
+        params.append('referrer', 'https://certifly.tech');
+        params.append('landing_url', window.location.href);
+        params.append('user_agent', navigator.userAgent);
         
         // Try ConvertKit submission
         fetch(this.action, {
           method: 'POST',
-          body: new URLSearchParams(formData),
+          body: params,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
