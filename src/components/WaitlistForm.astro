@@ -36,6 +36,7 @@ const convertKitFormId = "9138922";
   <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
   <input type="hidden" name="referrer" value="https://certifly.tech">
   <input type="hidden" name="landing_url" value={Astro.url.href}>
+  <input type="hidden" name="fields" value="{}">
   <!-- Privacy-friendly honeypot -->
   <div style="position: absolute; left: -5000px;" aria-hidden="true">
     <input type="text" name="first_name" tabindex="-1" autoComplete="off" />
@@ -45,12 +46,12 @@ const convertKitFormId = "9138922";
 {subText && <p class="cta-sub">{subText}</p>}
 
 <script>
-  // Enhanced ConvertKit form handling with fallback
+  // ConvertKit form handling with enhanced UX
   document.addEventListener('DOMContentLoaded', function() {
     const forms = document.querySelectorAll('[data-convertkit-form]');
     
     forms.forEach(form => {
-      form.addEventListener('submit', async function(e) {
+      form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         const submitBtn = this.querySelector('button[type="submit"]');
@@ -58,8 +59,9 @@ const convertKitFormId = "9138922";
         const originalBtnText = submitBtn.textContent;
         const email = emailInput.value.trim();
         
-        // Validate email
-        if (!email || !email.includes('@')) {
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
           alert('Please enter a valid email address');
           return;
         }
@@ -69,83 +71,75 @@ const convertKitFormId = "9138922";
         submitBtn.textContent = 'Submitting...';
         emailInput.disabled = true;
         
-        try {
-          // Submit directly to ConvertKit first
-          const formData = new FormData(this);
-          
-          // Try ConvertKit API first
-          const response = await fetch(this.action, {
-            method: 'POST',
-            body: new URLSearchParams(formData),
-            headers: { 'Accept': 'application/json' }
+        // Save to localStorage first
+        saveToLocalStorage(email);
+        
+        // Track conversion if GA is available (even if form fails)
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'waitlist_signup', {
+            'event_category': 'conversion',
+            'event_label': 'waitlist'
           });
-          
-          if (response.ok) {
-            // Success - show confirmation
-            submitBtn.textContent = '✓ You\'re on the list!';
-            submitBtn.style.background = '#037f4c';
-            emailInput.value = '';
-            
-            // Also save to localStorage as backup
-            saveToLocalStorage(email);
-            
-            // Track conversion if GA is available
-            if (typeof gtag !== 'undefined') {
-              gtag('event', 'waitlist_signup', {
-                'event_category': 'conversion',
-                'event_label': 'waitlist'
-              });
-            }
-            
-            // Reset after 3 seconds
-            setTimeout(() => {
-              submitBtn.textContent = originalBtnText;
-              submitBtn.style.background = '';
-              submitBtn.disabled = false;
-              emailInput.disabled = false;
-            }, 3000);
-          } else {
-            // ConvertKit failed, fallback to localStorage
-            throw new Error('ConvertKit submission failed');
-          }
-        } catch (error) {
-          console.log('ConvertKit submission failed, using localStorage fallback:', error);
-          
-          // Fallback: Save to localStorage
-          saveToLocalStorage(email);
-          
-          // Show success anyway
-          submitBtn.textContent = '✓ You\'re on the list! (Saved locally)';
-          submitBtn.style.background = '#037f4c';
-          emailInput.value = '';
-          
-          // Reset after 3 seconds
-          setTimeout(() => {
-            submitBtn.textContent = originalBtnText;
-            submitBtn.style.background = '';
-            submitBtn.disabled = false;
-            emailInput.disabled = false;
-          }, 3000);
         }
         
-        function saveToLocalStorage(email) {
-          try {
-            const waitlist = JSON.parse(localStorage.getItem('certifly_waitlist') || '[]');
-            waitlist.push({
-              email: email,
-              timestamp: new Date().toISOString(),
-              source: window.location.href,
-              submitted_to_convertkit: true
-            });
-            localStorage.setItem('certifly_waitlist', JSON.stringify(waitlist));
-            console.log('Saved to localStorage:', waitlist.length, 'total signups');
-          } catch (e) {
-            console.log('Could not save to localStorage');
+        // Show success state immediately
+        submitBtn.textContent = '✓ You\'re on the list!';
+        submitBtn.style.background = '#037f4c';
+        emailInput.value = '';
+        
+        // Submit to ConvertKit in background
+        const formData = new FormData(this);
+        
+        // Try ConvertKit submission
+        fetch(this.action, {
+          method: 'POST',
+          body: new URLSearchParams(formData),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
           }
-        }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('ConvertKit response:', data);
+          if (data.status === 'success') {
+            console.log('✅ ConvertKit submission successful');
+          } else {
+            console.warn('⚠️ ConvertKit responded with:', data.errors || data.message);
+          }
+        })
+        .catch(error => {
+          console.error('❌ ConvertKit submission error:', error);
+          // Fallback: Submit the form normally (page reload)
+          // this.submit();
+        });
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          submitBtn.textContent = originalBtnText;
+          submitBtn.style.background = '';
+          submitBtn.disabled = false;
+          emailInput.disabled = false;
+        }, 3000);
       });
     });
   });
+  
+  function saveToLocalStorage(email) {
+    try {
+      const waitlist = JSON.parse(localStorage.getItem('certifly_waitlist') || '[]');
+      waitlist.push({
+        email: email,
+        timestamp: new Date().toISOString(),
+        source: window.location.href,
+        user_agent: navigator.userAgent
+      });
+      localStorage.setItem('certifly_waitlist', JSON.stringify(waitlist));
+      console.log('📝 Saved to localStorage:', waitlist.length, 'total signups');
+    } catch (e) {
+      console.log('⚠️ Could not save to localStorage');
+    }
+  }
 </script>
 
 <style>
