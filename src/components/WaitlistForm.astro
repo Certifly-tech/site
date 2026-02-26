@@ -2,14 +2,162 @@
 interface Props {
   buttonText?: string;
   subText?: string;
+  placeholder?: string;
+  // ConvertKit settings (optional)
+  convertKitFormId?: string;
+  convertKitApiKey?: string;
 }
-const { buttonText = 'Join the Waitlist →', subText = '' } = Astro.props;
+
+const { 
+  buttonText = 'Join the Waitlist →', 
+  subText = 'Free early access. No credit card. Launching Q2 2026.',
+  placeholder = 'your@workemail.com',
+  convertKitFormId = Astro.env.PUBLIC_CONVERTKIT_FORM_ID,
+  convertKitApiKey = Astro.env.PUBLIC_CONVERTKIT_API_KEY
+} = Astro.props;
+
+const useConvertKit = !!convertKitFormId && !!convertKitApiKey;
 ---
-<form class="cta-form" data-waitlist>
-  <input type="email" placeholder="your@workemail.com" required aria-label="Email address">
-  <button type="submit">{buttonText}</button>
+
+<form 
+  class="cta-form" 
+  {useConvertKit ? 'data-convertkit-form' : 'data-waitlist'}
+  {@(useConvertKit && {
+    action: `https://app.convertkit.com/forms/${convertKitFormId}/subscriptions`,
+    method: 'post'
+  })}
+>
+  <input 
+    type="email" 
+    name={useConvertKit ? 'email_address' : 'email'}
+    placeholder={placeholder} 
+    required 
+    aria-label="Email address"
+    value={Astro.props.email || ''}
+  >
+  <button type="submit">
+    {buttonText}
+  </button>
+  
+  <!-- ConvertKit hidden fields -->
+  {useConvertKit && (
+    <>
+      <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
+      <input type="hidden" name="referrer" value="https://certifly.tech">
+      <input type="hidden" name="landing_url" value={Astro.url.href}>
+      <!-- Privacy-friendly honeypot -->
+      <div style="position: absolute; left: -5000px;" aria-hidden="true">
+        <input type="text" name="first_name" tabindex="-1" autoComplete="off" />
+      </div>
+    </>
+  )}
 </form>
+
 {subText && <p class="cta-sub">{subText}</p>}
+
+<script>
+  // Enhanced form handling for both ConvertKit and fallback
+  document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('[data-convertkit-form], [data-waitlist]');
+    
+    forms.forEach(form => {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const isConvertKit = this.hasAttribute('data-convertkit-form');
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const emailInput = this.querySelector('input[type="email"]');
+        const originalBtnText = submitBtn.textContent;
+        const email = emailInput.value.trim();
+        
+        // Validate email
+        if (!email || !email.includes('@')) {
+          alert('Please enter a valid email address');
+          return;
+        }
+        
+        // Disable UI
+        submitBtn.disabled = true;
+        submitBtn.textContent = isConvertKit ? 'Submitting...' : '✓ You\'re on the list!';
+        if (!isConvertKit) {
+          submitBtn.style.background = '#037f4c';
+        }
+        emailInput.disabled = true;
+        
+        if (isConvertKit) {
+          // ConvertKit submission
+          try {
+            // Option 1: Direct form submission (simpler)
+            this.submit();
+            
+            // Option 2: Fetch API (more control)
+            /*
+            const formData = new FormData(this);
+            const response = await fetch(this.action, {
+              method: 'POST',
+              body: new URLSearchParams(formData),
+              headers: { 'Accept': 'application/json' }
+            });
+            
+            if (response.ok) {
+              showSuccess();
+            } else {
+              throw new Error('Submission failed');
+            }
+            */
+          } catch (error) {
+            console.error('ConvertKit error:', error);
+            // Fallback to local storage
+            saveToLocalStorage(email);
+            showSuccess();
+          }
+        } else {
+          // Fallback: Save to localStorage or console
+          console.log('Waitlist signup (fallback):', email);
+          saveToLocalStorage(email);
+          showSuccess();
+        }
+        
+        function showSuccess() {
+          submitBtn.textContent = '✓ You\'re on the list!';
+          submitBtn.style.background = '#037f4c';
+          emailInput.value = '';
+          
+          // Track conversion if GA is available
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'waitlist_signup', {
+              'event_category': 'conversion',
+              'event_label': 'waitlist'
+            });
+          }
+          
+          // Reset after 3 seconds
+          setTimeout(() => {
+            submitBtn.textContent = originalBtnText;
+            submitBtn.style.background = '';
+            submitBtn.disabled = false;
+            emailInput.disabled = false;
+          }, 3000);
+        }
+        
+        function saveToLocalStorage(email) {
+          try {
+            const waitlist = JSON.parse(localStorage.getItem('certifly_waitlist') || '[]');
+            waitlist.push({
+              email: email,
+              timestamp: new Date().toISOString(),
+              source: window.location.href
+            });
+            localStorage.setItem('certifly_waitlist', JSON.stringify(waitlist));
+            console.log('Saved to localStorage:', waitlist.length, 'total signups');
+          } catch (e) {
+            console.log('Could not save to localStorage');
+          }
+        }
+      });
+    });
+  });
+</script>
 
 <style>
   .cta-form {
@@ -33,6 +181,10 @@ const { buttonText = 'Join the Waitlist →', subText = '' } = Astro.props;
   .cta-form button:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 30px var(--glow-magenta);
+  }
+  .cta-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
   .cta-sub { font-size: 13px; color: var(--text-muted); margin-top: 10px; }
 

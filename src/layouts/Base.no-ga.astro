@@ -53,21 +53,52 @@ const canonical = canonicalUrl || Astro.url.href;
     }
     .fonts-loading { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
     .fonts-loaded { font-family: 'DM Sans', system-ui, sans-serif; }
+    
+    /* Font face definitions for local fonts */
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local('Outfit'), local('Outfit-Regular'), url('/fonts/Outfit-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: local('Outfit Medium'), local('Outfit-Medium'), url('/fonts/Outfit-Medium.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: local('Outfit SemiBold'), local('Outfit-SemiBold'), url('/fonts/Outfit-SemiBold.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: local('Outfit Bold'), local('Outfit-Bold'), url('/fonts/Outfit-Bold.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Outfit';
+      font-style: normal;
+      font-weight: 800;
+      font-display: swap;
+      src: local('Outfit ExtraBold'), local('Outfit-ExtraBold'), url('/fonts/Outfit-ExtraBold.woff2') format('woff2');
+    }
   </style>
   
-  <!-- Preload and preconnect for critical resources -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-  
-  <!-- Async load fonts with font-display: swap -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap&display=swap" media="print" onload="this.onload=null;this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
-  </noscript>
+  <!-- Preload critical fonts -->
+  <link rel="preload" href="/fonts/Outfit-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/Outfit-Bold.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Defer loading of main CSS -->
+  <link rel="preload" href="/_astro/index.DSxHBuTC.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/_astro/index.DSxHBuTC.css"></noscript>
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/certifly.svg">
@@ -98,41 +129,6 @@ const canonical = canonicalUrl || Astro.url.href;
   <!-- Page-specific schema -->
   {schema && <script type="application/ld+json" set:html={schema} />}
 
-  <!-- Google Analytics - Load after 5 seconds or on user interaction -->
-  <script>
-    // Defer GA until 5 seconds after load OR on first interaction
-    function loadGoogleAnalytics() {
-      var script = document.createElement('script');
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-      
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-MQ633HZM4L', { 'transport_type': 'beacon' });
-    }
-    
-    // Load GA after 5 seconds OR on first user interaction
-    setTimeout(loadGoogleAnalytics, 5000);
-    
-    // Alternatively load on first user interaction
-    ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(function(event) {
-      window.addEventListener(event, function loadGAOnInteraction() {
-        loadGoogleAnalytics();
-        // Remove listeners after first interaction
-        ['click', 'touchstart', 'keydown', 'scroll', 'mousemove'].forEach(function(e) {
-          window.removeEventListener(e, loadGAOnInteraction);
-        });
-      }, { once: true, passive: true });
-    });
-  </script>
-
-  <!-- Defer loading of main CSS -->
-  <link rel="preload" href="/_astro/index.DSxHBuTC.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/_astro/index.DSxHBuTC.css"></noscript>
-
   <slot name="head" />
 </head>
 <body>
@@ -144,8 +140,9 @@ const canonical = canonicalUrl || Astro.url.href;
 
   <Footer />
 
-  <!-- Loading bar - deferred since not critical -->
-  <script defer>
+  <!-- Performance optimized scripts -->
+  <script>
+    // Critical inline script for loading bar
     (function() {
       // Show loading bar
       const loadingBar = document.createElement('div');
@@ -168,7 +165,7 @@ const canonical = canonicalUrl || Astro.url.href;
     })();
   </script>
   
-  <!-- Deferred performance optimizer (animations only) -->
+  <!-- Deferred performance optimizer -->
   <script defer>
     // Minimal IntersectionObserver for fade-up animations
     (function() {
@@ -180,9 +177,45 @@ const canonical = canonicalUrl || Astro.url.href;
               observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.1, rootMargin: '40px 0px 40px 0px' });
+        }, { 
+          threshold: 0.1,
+          rootMargin: '40px 0px 40px 0px'
+        });
         
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+      }
+    })();
+    
+    // Waitlist form handler
+    (function() {
+      const forms = document.querySelectorAll('[data-waitlist]');
+      if (forms.length) {
+        forms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = this.querySelector('input[type="email"]');
+            const btn = this.querySelector('button');
+            const email = input.value;
+            
+            if (!email) return;
+            
+            btn.textContent = '✓ You\'re on the list!';
+            btn.style.background = '#037f4c';
+            btn.disabled = true;
+            input.disabled = true;
+            input.value = '';
+            
+            // Log for now - replace with actual API call
+            console.log('Waitlist signup:', email);
+            
+            setTimeout(function() {
+              btn.textContent = 'Join the Waitlist →';
+              btn.style.background = '';
+              btn.disabled = false;
+              input.disabled = false;
+            }, 4000);
+          });
+        });
       }
     })();
   </script>

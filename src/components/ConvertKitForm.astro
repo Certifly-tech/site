@@ -1,0 +1,196 @@
+---
+interface Props {
+  buttonText?: string;
+  placeholder?: string;
+  subText?: string;
+}
+
+const {
+  buttonText = "Join the Waitlist →",
+  placeholder = "Your email address...",
+  subText = "Free early access. No credit card. Launching Q2 2026."
+} = Astro.props;
+---
+
+<div class="ck-form">
+  <form 
+    action="https://app.convertkit.com/forms/YOUR_FORM_ID_HERE/subscriptions" 
+    method="post"
+    class="cta-form"
+    data-waitlist
+    data-sv-form="YOUR_FORM_ID_HERE"
+  >
+    <div class="email-input-group">
+      <input
+        type="email"
+        name="email_address"
+        placeholder={placeholder}
+        required
+        aria-label="Email address"
+        class="email-input"
+      />
+      <button type="submit" class="cta-button">
+        {buttonText}
+      </button>
+    </div>
+    {subText && <div class="subtext">{subText}</div>}
+    
+    <!-- ConvertKit hidden fields -->
+    <input type="hidden" name="user_agent" value="Mozilla/5.0 (compatible; certifly.tech)">
+    <input type="hidden" name="referrer" value="https://certifly.tech">
+    <input type="hidden" name="landing_url" value="{Astro.url.href}">
+    
+    <!-- Privacy-friendly alternative -->
+    <div style="position: absolute; left: -5000px;" aria-hidden="true">
+      <input type="text" name="honeypot" tabindex="-1" />
+    </div>
+  </form>
+</div>
+
+<style>
+  .ck-form {
+    margin: 0 auto;
+    max-width: 500px;
+  }
+  
+  .cta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .email-input-group {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  @media (max-width: 600px) {
+    .email-input-group {
+      flex-direction: column;
+    }
+  }
+  
+  .email-input {
+    flex: 1;
+    padding: 16px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    transition: border-color 0.2s;
+  }
+  
+  .email-input:focus {
+    outline: none;
+    border-color: var(--magenta);
+  }
+  
+  .email-input::placeholder {
+    color: var(--text-muted);
+  }
+  
+  .cta-button {
+    padding: 16px 28px;
+    border: none;
+    border-radius: 10px;
+    background: var(--gradient);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+  
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(241, 0, 255, 0.2);
+  }
+  
+  .cta-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .subtext {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+</style>
+
+<script>
+  // Enhanced ConvertKit form handling
+  document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('[data-sv-form]');
+    
+    forms.forEach(form => {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const emailInput = form.querySelector('input[name="email_address"]');
+        const originalBtnText = submitBtn.textContent;
+        
+        // Validate email
+        const email = emailInput.value.trim();
+        if (!email || !email.includes('@')) {
+          alert('Please enter a valid email address');
+          return;
+        }
+        
+        // Disable UI
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        emailInput.disabled = true;
+        
+        try {
+          // Submit to ConvertKit
+          const formData = new FormData(form);
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            // Success
+            submitBtn.textContent = '✓ You\'re on the list!';
+            submitBtn.style.background = '#037f4c';
+            emailInput.value = '';
+            
+            // Optional: Track conversion
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'waitlist_signup', {
+                'event_category': 'conversion',
+                'event_label': 'waitlist'
+              });
+            }
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+              submitBtn.textContent = originalBtnText;
+              submitBtn.style.background = '';
+              submitBtn.disabled = false;
+              emailInput.disabled = false;
+            }, 3000);
+          } else {
+            throw new Error('Submission failed');
+          }
+        } catch (error) {
+          // Fallback to normal form submission
+          console.log('ConvertKit submission failed, falling back to direct POST');
+          form.submit();
+        }
+      });
+    });
+  });
+</script>
