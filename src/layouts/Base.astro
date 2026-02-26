@@ -26,14 +26,49 @@ const canonical = canonicalUrl || Astro.url.href;
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="/styles/critical.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>{title}</title>
   <meta name="description" content={description}>
   <meta name="robots" content="index, follow">
   <link rel="canonical" href={canonical}>
   
+  <!-- Critical CSS Inline -->
+  <style>
+    /* Minimal critical CSS for above-the-fold content */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a1a; color: #f0f0f5; overflow-x: hidden;
+    }
+    .loading-bar {
+      height: 3px; background: linear-gradient(135deg, #f100ff, #0000b8);
+      width: 0%; position: fixed; top: 0; left: 0; z-index: 10000;
+      animation: loading 2s ease-in-out infinite;
+    }
+    @keyframes loading {
+      0% { width: 0%; left: 0%; }
+      50% { width: 50%; left: 25%; }
+      100% { width: 0%; left: 100%; }
+    }
+    .fonts-loading { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .fonts-loaded { font-family: 'DM Sans', system-ui, sans-serif; }
+  </style>
+  
+  <!-- Preload and preconnect for critical resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  
+  <!-- Async load fonts with font-display: swap -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap&display=swap" media="print" onload="this.onload=null;this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+  </noscript>
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/certifly.svg">
   <link rel="icon" type="image/png" href="/certifly.svg" sizes="any">
@@ -50,11 +85,6 @@ const canonical = canonicalUrl || Astro.url.href;
   <meta name="twitter:title" content={title}>
   <meta name="twitter:description" content={description}>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" crossorigin="anonymous">
-
   <!-- Organization Schema -->
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
@@ -68,14 +98,39 @@ const canonical = canonicalUrl || Astro.url.href;
   <!-- Page-specific schema -->
   {schema && <script type="application/ld+json" set:html={schema} />}
 
-  <!-- Google Tag Manager -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L"></script>
+  <!-- Google Analytics - Defer loading -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-MQ633HZM4L');
+    // Load GA after page becomes interactive
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(function() {
+        var script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
+        script.async = true;
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MQ633HZM4L');
+      });
+    } else {
+      setTimeout(function() {
+        var script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-MQ633HZM4L';
+        script.async = true;
+        document.head.appendChild(script);
+        
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MQ633HZM4L');
+      }, 3000); // Load after 3 seconds if no requestIdleCallback
+    }
   </script>
+
+  <!-- Defer loading of main CSS -->
+  <link rel="preload" href="/_astro/index.DSxHBuTC.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/_astro/index.DSxHBuTC.css"></noscript>
 
   <slot name="head" />
 </head>
