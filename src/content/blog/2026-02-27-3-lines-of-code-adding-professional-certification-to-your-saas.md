@@ -77,7 +77,7 @@ Pilot with 50-100 power users. Track completion rates, retention impact, and org
 1. **Skills Assessment:** Map 3-5 core features to professional skills
 2. **Learning Paths:** Create beginner → intermediate → expert tracks
 3. **Credential Design:** Professional titles users want on LinkedIn
-4. **SDK Integration:** ```<script src="https://cdn.certifly.io/v1/certifly.min.js"></script>```
+4. **SDK Integration:** ```<script src="https://cdn.certifly.tech/v1/certifly.min.js"></script>```
 5. **Launch & Iterate:** Start small, measure, expand
 
 ## The Future Is Certified

@@ -109,7 +109,7 @@ Most product teams hear "certification program" and imagine:
 What if we told you it's **3 lines of code**?
 
 ```
-<script src="https://cdn.certifly.io/v1/certifly.min.js"></script>
+<script src="https://cdn.certifly.tech/v1/certifly.min.js"></script>
 <script>
   Certifly.init({ apiKey: 'your-key', product: 'your-saas-domain' });
 </script>
