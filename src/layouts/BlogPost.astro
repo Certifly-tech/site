@@ -91,6 +91,8 @@ const articleSchema = JSON.stringify({
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 100%;
   }
   .post-content :global(th) { 
     font-family: 'Outfit', sans-serif;
@@ -102,11 +104,13 @@ const articleSchema = JSON.stringify({
     background: linear-gradient(90deg, var(--bg-card), var(--bg-card-hover));
     padding: 1rem 1.5rem;
     border-bottom: 2px solid var(--border-glow);
+    white-space: nowrap;
   }
   .post-content :global(td) { 
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border-subtle);
     color: var(--text-secondary);
+    min-width: 120px;
   }
   .post-content :global(tbody tr:hover) {
     background: var(--bg-card-hover);
@@ -116,6 +120,28 @@ const articleSchema = JSON.stringify({
   }
   .post-content :global(td strong) {
     color: var(--text-primary);
+  }
+  
+  @media (max-width: 768px) {
+    .post-content :global(table) {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 8px;
+      margin: 1.5rem -1rem;
+      width: calc(100% + 2rem);
+      max-width: none;
+      font-size: 0.9em;
+    }
+    .post-content :global(th),
+    .post-content :global(td) {
+      padding: 0.75rem 1rem;
+      min-width: 100px;
+    }
+    .post-content :global(th) {
+      font-size: 0.8em;
+      padding: 0.75rem 0.5rem;
+    }
   }
 
   .post-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border-subtle); }
