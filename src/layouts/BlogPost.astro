@@ -84,6 +84,39 @@ const articleSchema = JSON.stringify({
   .post-content :global(ul), .post-content :global(ol) { color: var(--text-secondary); padding-left: 24px; margin-bottom: 20px; }
   .post-content :global(li) { margin-bottom: 8px; line-height: 1.7; }
   .post-content :global(img) { max-width: 100%; border-radius: 12px; margin: 24px 0; }
+  
+  .post-content :global(table) { 
+    margin: 2.5rem 0; 
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  .post-content :global(th) { 
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--magenta);
+    background: linear-gradient(90deg, var(--bg-card), var(--bg-card-hover));
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--border-glow);
+  }
+  .post-content :global(td) { 
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+  }
+  .post-content :global(tbody tr:hover) {
+    background: var(--bg-card-hover);
+  }
+  .post-content :global(tbody tr:nth-child(even)) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .post-content :global(td strong) {
+    color: var(--text-primary);
+  }
 
   .post-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border-subtle); }
   .back-link { color: var(--text-secondary); font-size: 15px; }
