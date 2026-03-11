@@ -198,4 +198,4 @@ And that's where real retention—and real ROI—happens.
 ---
 *About the author: Guilherme builds Certifly, the AI-powered certification platform that turns SaaS usage into professional credentials. We help B2B companies reduce churn by 40%+ by making users experts in their domain, not just proficient in their interface.*
 
-*Ready to trade tooltip completion for career advancement? [Join the waitlist →](https://certifly.tech)*
+*Ready to trade tooltip completion for career advancement? [Join the waitlist →](https://certifly.tech)*<!-- Build: Tue Mar 10 09:20:59 PM -03 2026 -->
