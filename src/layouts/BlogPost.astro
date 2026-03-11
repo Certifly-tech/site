@@ -35,7 +35,7 @@ const articleSchema = JSON.stringify({
 >
   <article class="blog-post">
     <div class="container">
-      <header class="post-header fade-up">
+      <header class="post-header">
         <div class="post-meta">
           <time datetime={pubDate.toISOString()}>
             {pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -50,10 +50,10 @@ const articleSchema = JSON.stringify({
           </div>
         )}
       </header>
-      <div class="post-content fade-up">
+      <div class="post-content">
         <slot />
       </div>
-      <footer class="post-footer fade-up">
+      <footer class="post-footer">
         <a href="/blog" class="back-link">← Back to Blog</a>
       </footer>
     </div>
