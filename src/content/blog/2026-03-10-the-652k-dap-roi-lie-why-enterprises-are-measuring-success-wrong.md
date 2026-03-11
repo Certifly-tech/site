@@ -4,10 +4,6 @@ description: "70% of enterprises will deploy DAPs by 2025, but they're optimizin
 pubDate: "2026-03-10"
 author: "Guilherme"
 tags: ["digital adoption platform", "dap", "saas", "user retention", "churn reduction", "professional certification", "customer success", "enterprise software", "roi", "whatfix", "walkme", "userpilot", "appcues", "trailhead", "certification platform", "b2b saas", "user onboarding", "product adoption"]
-image: "/images/dap-roi-lie.jpg"
-imageAlt: "Graph showing DAP ROI vs Certification ROI comparison with 97% tooltip skip rate"
-ogImage: "https://certifly.tech/images/dap-roi-lie-og.jpg"
-ogImageAlt: "The $652K DAP ROI Lie: Why Enterprises Are Measuring Success Wrong"
 canonicalUrl: "https://certifly.tech/blog/2026-03-10-the-652k-dap-roi-lie-why-enterprises-are-measuring-success-wrong/"
 ---
 
