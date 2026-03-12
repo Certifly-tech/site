@@ -39,8 +39,12 @@ const canonical = canonicalUrl || Astro.url.href;
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-display: swap;
       background: #0a0a1a; color: #f0f0f5; overflow-x: hidden;
     }
+    /* Font optimization - show system font until custom fonts load */
+    .fonts-loading { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+    .fonts-loaded { font-family: 'DM Sans', system-ui, sans-serif !important; }
     .loading-bar {
       height: 3px; background: linear-gradient(135deg, #f100ff, #0000b8);
       width: 0%; position: fixed; top: 0; left: 0; z-index: 10000;
@@ -63,10 +67,13 @@ const canonical = canonicalUrl || Astro.url.href;
   <link rel="dns-prefetch" href="https://fonts.gstatic.com">
   <link rel="dns-prefetch" href="https://www.googletagmanager.com">
   
-  <!-- Async load fonts with font-display: swap -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap&display=swap" media="print" onload="this.onload=null;this.media='all'">
+  <!-- Preload critical font weights -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=DM+Sans:wght@400;600&display=swap&subset=latin&display=swap" as="style">
+  
+  <!-- Async load fonts with font-display: swap and subset latin -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=DM+Sans:wght@400;600&display=swap&subset=latin" media="print" onload="this.onload=null;this.media='all'">
   <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=DM+Sans:wght@400;600&display=swap&subset=latin">
   </noscript>
 
   <!-- Favicon -->
