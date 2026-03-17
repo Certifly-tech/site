@@ -136,8 +136,12 @@ const canonical = canonicalUrl || Astro.url.href;
     });
   </script>
 
-  <!-- Defer loading of main CSS -->
-  <link rel="preload" href="/_astro/index.DSxHBuTC.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <!-- Critical page-specific CSS -->
+  <slot name="head" />
+
+  <!-- Preload & async CSS strategy -->
+  <link rel="preload" href="/_astro/index.DSxHBuTC.css" as="style">
+  <link rel="stylesheet" href="/_astro/index.DSxHBuTC.css" media="print" onload="this.onload=null;this.media='all'">
   <noscript><link rel="stylesheet" href="/_astro/index.DSxHBuTC.css"></noscript>
 
   <slot name="head" />

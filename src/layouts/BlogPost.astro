@@ -1,6 +1,9 @@
 ---
 import Base from './Base.astro';
 
+// This CSS is only needed for blog pages
+const blogCSS = '/_astro/_slug_.CdBuOzYe.css';
+
 interface Props {
   title: string;
   description: string;
@@ -33,6 +36,11 @@ const articleSchema = JSON.stringify({
   ogImage={image}
   schema={articleSchema}
 >
+  <!-- Preload blog-specific CSS -->
+  <link rel="preload" href={blogCSS} as="style">
+  <link rel="stylesheet" href={blogCSS} media="print" onload="this.onload=null;this.media='all'">
+  <noscript><link rel="stylesheet" href={blogCSS}></noscript>
+  
   <article class="blog-post">
     <div class="container">
       <header class="post-header">
