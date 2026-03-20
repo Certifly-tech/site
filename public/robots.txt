@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /sitemap-index.xml
+Allow: /sitemap-0.xml
+Disallow: /admin/
+Disallow: /private/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+
+Sitemap: https://certifly.tech/sitemap-index.xml
+
+# Google Search Console verification
+# If you have a verification file, add it here
+# e.g., User-agent: Googlebot
+# Allow: /google1234567890.html
+
+# Crawl-delay: 10
